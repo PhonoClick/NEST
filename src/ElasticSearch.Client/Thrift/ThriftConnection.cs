@@ -56,7 +56,7 @@ namespace ElasticSearch.Client.Thrift
 		public ConnectionStatus GetSync(string path)
 		{
 			var restRequest = new RestRequest();
-			restRequest.Method = Method.POST;
+			restRequest.Method = Method.GET;
 			restRequest.Uri = path;
 
 			restRequest.Headers = new Dictionary<string, string>();
