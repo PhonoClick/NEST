@@ -9,46 +9,52 @@ namespace ElasticSearch.Client
 
 	public partial class ElasticClient
 	{
-		public ConnectionStatus Index<T>(T @object) where T : class
-		{
+    public ConnectionStatus Index(object @object) {
+      var path = this.CreatePathFor(@object);
+      return this._indexToPath(@object, path);
+    }
+
+    public ConnectionStatus Index<T>(T @object) {
 			var path = this.CreatePathFor<T>(@object);
 		    return this._indexToPath(@object, path);
 		}
+
 		public ConnectionStatus Index<T>(T @object, string index) where T : class
 		{
 			var path = this.CreatePathFor<T>(@object, index);
-			return this._indexToPath<T>(@object, path);
+			return this._indexToPath(@object, path);
 		}
 		public ConnectionStatus Index<T>(T @object, string index, string type) where T : class
 		{
-			var path = this.CreatePathFor<T>(@object, index, type);
-			return this._indexToPath<T>(@object, path);
+			var path = this.CreatePathFor(@object, index, type);
+			return this._indexToPath(@object, path);
 		}
-		public ConnectionStatus Index<T>(T @object, string index, string type, string id) where T : class
+		public ConnectionStatus Index(object @object, string index, string type, object id)
 		{
-			var path = this.CreatePathFor<T>(@object, index, type, id);
-			return this._indexToPath<T>(@object, path);
-		}
-		public ConnectionStatus Index<T>(T @object, string index, string type, int id) where T : class
-		{
-			var path = this.CreatePathFor<T>(@object, index, type, id.ToString());
-			return this._indexToPath<T>(@object, path);
+			var path = this.CreatePathFor(@object, index, type, id);
+			return this._indexToPath(@object, path);
 		}
 		
-		private ConnectionStatus _indexToPath<T>(T @object, string path) where T : class
+		private ConnectionStatus _indexToPath(object @object, string path)
 		{
 			path.ThrowIfNull("path");
-			
-			string json = JsonConvert.SerializeObject(@object, Formatting.Indented, this.SerializationSettings);
+
+		  string json = SerializeObject(@object);
 
 			return this.Connection.PostSync(path, json);
 		}
+
+    public void IndexAsync(object @object) {
+      var path = this.CreatePathFor(@object);
+      this._indexAsyncToPath(@object, path, (s) => { });
+    }
 
 		public void IndexAsync<T>(T @object) where T : class
 		{
 			var path = this.CreatePathFor<T>(@object);
 			this._indexAsyncToPath(@object, path, (s)=>{});
 		}
+
 		public void IndexAsync<T>(T @object, Action<ConnectionStatus> continuation) where T : class
 		{
 			var path = this.CreatePathFor<T>(@object);
@@ -61,23 +67,18 @@ namespace ElasticSearch.Client
 		}
 		public void IndexAsync<T>(T @object, string index, string type, Action<ConnectionStatus> continuation) where T : class
 		{
-			var path = this.CreatePathFor<T>(@object, index, type);
+			var path = this.CreatePathFor(@object, index, type);
 			this._indexAsyncToPath(@object, path, continuation);
 		}
-		public void IndexAsync<T>(T @object, string index, string type, string id, Action<ConnectionStatus> continuation) where T : class
+		public void IndexAsync(object @object, string index, string type, object id, Action<ConnectionStatus> continuation)
 		{
-			var path = this.CreatePathFor<T>(@object, index, type, id);
-			this._indexAsyncToPath(@object, path, continuation);
-		}
-		public void IndexAsync<T>(T @object, string index, string type, int id, Action<ConnectionStatus> continuation) where T : class
-		{
-			var path = this.CreatePathFor<T>(@object, index, type, id.ToString());
+			var path = this.CreatePathFor(@object, index, type, id);
 			this._indexAsyncToPath(@object, path, continuation);
 		}
 		
-		private void _indexAsyncToPath<T>(T @object, string path, Action<ConnectionStatus> continuation) where T : class
+		private void _indexAsyncToPath(object @object, string path, Action<ConnectionStatus> continuation)
 		{
-			string json = JsonConvert.SerializeObject(@object, Formatting.None, this.SerializationSettings);
+      string json = SerializeObject(@object);
 			this.Connection.Post(path, json, continuation);
 		}
 
@@ -86,6 +87,7 @@ namespace ElasticSearch.Client
 			var json = this.GenerateBulkCommand(@objects);
 			return this.Connection.PostSync("_bulk", json);
 		}
+
 		public ConnectionStatus Index<T>(IEnumerable<T> objects, string index) where T : class
 		{
 			var json = this.GenerateBulkCommand(@objects, index);
@@ -134,7 +136,6 @@ namespace ElasticSearch.Client
 			objects.ThrowIfNull("objects");
 			index.ThrowIfNullOrEmpty("index");
 
-			var type = typeof(T);
 			var typeName = this.InferTypeName<T>();
 
 			return this.GenerateBulkCommand<T>(objects, index, typeName);

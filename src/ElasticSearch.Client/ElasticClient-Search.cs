@@ -19,41 +19,70 @@ namespace ElasticSearch.Client
 
 	public partial class ElasticClient
 	{
-		public QueryResponse<T> Query<T>(string query) where T : class
-		{
-			var index = this.Settings.DefaultIndex;
-			index.ThrowIfNullOrEmpty("Cannot infer default index for current connection.");
+    public QueryResponse Query(string query, params string[] typeNames) {
+      var index = this.Settings.DefaultIndex;
+      index.ThrowIfNullOrEmpty("Cannot infer default index for current connection.");
 
-			var type = typeof(T);
-			var typeName = this.InferTypeName<T>();
-			string path = this.createPath(index, typeName) + "_search";
+      var typeName = string.Join(",", typeNames);
+      if (string.IsNullOrEmpty(typeName)) {
+        typeName = "*";
+      }
+      string path = this.createPath(index, typeName) + "_search";
+      var status = this.Connection.PostSync(path, query);
+      if (status.Error != null) {
+        return new QueryResponse() {
+          IsValid = false,
+          ConnectionError = status.Error
+        };
+      }
+    
+      var response = JsonConvert.DeserializeObject<QueryResponse>(status.Result);
 
-			var status = this.Connection.PostSync(path, query);
-			if (status.Error != null)
-			{
-				return new QueryResponse<T>()
-				{
-					IsValid = false,
-					ConnectionError = status.Error
-				};
-			}
+      return response;
+    }
 
-			var response = JsonConvert.DeserializeObject<QueryResponse<T>>(status.Result);
+		public QueryResponse Query<T>(string query) {
+		  return (QueryResponse)Query(query, this.InferTypeName<T>());
+      //var index = this.Settings.DefaultIndex;
+      //index.ThrowIfNullOrEmpty("Cannot infer default index for current connection.");
 
-			return response;
+      //var type = typeof(T);
+      //var typeName = this.InferTypeName<T>();
+      //string path = this.createPath(index, typeName) + "_search";
+
+      //var status = this.Connection.PostSync(path, query);
+      //if (status.Error != null)
+      //{
+      //  return new QueryResponse<T>()
+      //  {
+      //    IsValid = false,
+      //    ConnectionError = status.Error
+      //  };
+      //}
+
+      //var response = JsonConvert.DeserializeObject<QueryResponse<T>>(status.Result);
+
+      //return response;
 		}
 
-		public QueryResponse<T> Search<T>(Search search) where T : class
+    public QueryResponse Search(Search search, params string[] typeNames) {
+      var rawQuery = this.SerializeCommand(search);
+      Console.WriteLine(rawQuery);
+      return this.Query(rawQuery, typeNames);
+    }
+
+		public QueryResponse Search<T>(Search search)
 		{
-			var rawQuery = this.Serialize(search);
+			var rawQuery = this.SerializeCommand(search);
+      Console.WriteLine(rawQuery);
 			return this.Query<T>(rawQuery);
 		}
-		public QueryResponse<T> Search<T>(string search) where T : class
-		{
+
+		public QueryResponse Search<T>(string search) {
 			return this.Query<T>(search);
 		}
 
-		public QueryResponse<T> Search<T>(Query<T> query) where T : class
+		public QueryResponse Search<T>(Query<T> query) where T : class
 		{
 			
 			var q = query.Queries.First();
@@ -71,13 +100,13 @@ namespace ElasticSearch.Client
 
 			};
 
-			var rawQuery = this.Serialize(search);
+			var rawQuery = this.SerializeCommand(search);
 			return this.Query<T>(rawQuery);
 		}
 
 
 
-		public QueryResponse<T> Search<T>(IQuery query) where T : class
+		public QueryResponse Search<T>(IQuery query) where T : class
 		{
 			return this.Search<T>(new Search()
 			{

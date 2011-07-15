@@ -113,7 +113,7 @@ namespace HackerNews.Indexer
 			}
 			catch (Exception e)
 			{
-
+        Console.WriteLine(e);
 			}
 
 		

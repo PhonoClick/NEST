@@ -6,15 +6,6 @@ using ElasticSearch.Client.DSL;
 
 namespace ElasticSearch.Client
 {
-	public class DynamicContractResolver : DefaultContractResolver
-	{
-	    protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
-	    {
-	        var contract = new JsonObjectContract(type);
-	        return base.CreateProperties(contract.CreatedType, contract.MemberSerialization);
-	    }
-	}
-
 	public class QueryJsonConverter : JsonConverter
 	{
 /*
@@ -26,14 +17,16 @@ namespace ElasticSearch.Client
 
 		public override bool CanConvert(Type objectType)
 		{
-			return typeof(IFieldQuery).IsAssignableFrom(objectType);
+			return typeof(Query).IsAssignableFrom(objectType);
 		}
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			IFieldQuery fq = value as IFieldQuery;
+			var fq = value as Query;
 			if (fq != null)
 			{
-				writer.WriteStartObject();
+        serializer.Serialize(writer, fq.Queries);
+        /*
+        writer.WriteStartObject();
 				writer.WritePropertyName(fq.Field);
 				writer.WriteStartObject();
 				if (fq is IValue)
@@ -49,7 +42,8 @@ namespace ElasticSearch.Client
 				}
 				writer.WriteEndObject();
 				writer.WriteEndObject();
-			}
+        */
+      }
 			else
 				writer.WriteNull();
 		}

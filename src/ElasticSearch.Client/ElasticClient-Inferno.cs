@@ -33,38 +33,26 @@ namespace ElasticSearch.Client
 			return idSelector;
 		}
 
-		private string CreatePathFor<T>(T @object) where T : class
-		{
+    private string CreatePathFor(object @object) {
+      var index = this.Settings.DefaultIndex;
+      if (string.IsNullOrEmpty(index))
+        throw new NullReferenceException("Cannot infer default index for current connection.");
+      return this.CreatePathFor(@object, index, InferTypeName(@object));
+    }
+
+		private string CreatePathFor<T>(T @object) {
 			var index = this.Settings.DefaultIndex;
 			if (string.IsNullOrEmpty(index))
 				throw new NullReferenceException("Cannot infer default index for current connection.");
 			return this.CreatePathFor<T>(@object, index);
-
 		}
-		private string CreatePathFor<T>(T @object, string index) where T : class
-		{
-			//var type = typeof(T);
+
+		private string CreatePathFor<T>(T @object, string index) {
 			var typeName = this.InferTypeName<T>();
-			return this.CreatePathFor<T>(@object, index, typeName);
-			/*var path = this.createPath(index, typeName);
-
-			var idProperty = type.GetProperty("Id");
-			int? id = null;
-			string idString = string.Empty;
-			if (idProperty != null)
-			{
-				if (idProperty.PropertyType == typeof(int))
-					id = (int?)@object.TryGetPropertyValue("Id");
-				if (idProperty.PropertyType == typeof(string))
-					idString = (string)@object.TryGetPropertyValue("Id");
-				if (id.HasValue)
-					idString = id.Value.ToString();
-				if (!string.IsNullOrEmpty(idString))
-					path = this.createPath(index, typeName, idString);
-			}
-			return path;*/
+			return this.CreatePathFor(@object, index, typeName);			
 		}
-		private string CreatePathFor<T>(T @object, string index, string type) where T : class
+
+		private string CreatePathFor(object @object, string index, string type)
 		{
 			@object.ThrowIfNull("object");
 			index.ThrowIfNull("index");
@@ -72,14 +60,14 @@ namespace ElasticSearch.Client
 
 			var path = this.createPath(index, type);
 
-			var id = this.GetIdFor<T>(@object);
+			var id = this.GetIdFor(@object);
 			if (!string.IsNullOrEmpty(id))
 				path = this.createPath(index, type, id);
 
 			return path;
 
 		}
-		private string CreatePathFor<T>(T @object, string index, string type, string id) where T : class
+		private string CreatePathFor(object @object, string index, string type, object id)
 		{
 			@object.ThrowIfNull("object");
 			index.ThrowIfNull("index");
@@ -88,9 +76,9 @@ namespace ElasticSearch.Client
 			return this.createPath(index, type, id);
 		}
 
-		private string GetIdFor<T>(T @object)
+		private string GetIdFor(object @object)
 		{
-			var type = typeof(T);
+			var type = @object.GetType();
 			var idProperty = type.GetProperty("Id");
 			int? id = null;
 			string idString = string.Empty;
@@ -107,12 +95,21 @@ namespace ElasticSearch.Client
 			return idString;
 		}
 
-		private string InferTypeName<T>() where T : class
-		{
+    private string InferTypeName(object o) {
+      var type = o.GetType();
+      var typeName = type.Name;
+      if (this.Settings.TypeNameInferrer != null)
+        typeName = this.Settings.TypeNameInferrer(type);
+      if (this.Settings.TypeNameInferrer == null || string.IsNullOrEmpty(typeName))
+        typeName = Inflector.MakePlural(type.Name).ToLower();
+      return typeName;
+    }
+
+		private string InferTypeName<T>() {
 			var type = typeof(T);
 			var typeName = type.Name;
 			if (this.Settings.TypeNameInferrer != null)
-				typeName = this.Settings.TypeNameInferrer(typeName);
+				typeName = this.Settings.TypeNameInferrer(type);
 			if (this.Settings.TypeNameInferrer == null || string.IsNullOrEmpty(typeName))
 				typeName = Inflector.MakePlural(type.Name).ToLower();
 			return typeName;
@@ -122,10 +119,18 @@ namespace ElasticSearch.Client
 		{
 			return "{0}/{1}/".F(index, type);
 		}
-		private string createPath(string index, string type, string id)
+		private string createPath(string index, string type, object id)
 		{
 			return "{0}/{1}/{2}".F(index, type, id);
 		}
+
+    private string createPath(string index) {
+      return "{0}/".F(index);
+    }
+
+	  public void Refresh() {
+      this.Connection.PostSync("_refresh", "");
+	  }
 
 	}
 }
