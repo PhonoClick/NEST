@@ -18,13 +18,13 @@ namespace ElasticSearch.Tests
 		private string _LookFor = NestTestData.Data.First().Followers.First().FirstName;
 
 
-		protected void TestDefaultAssertions(QueryResponse<ElasticSearchProject> queryResponse)
+		protected void TestDefaultAssertions(QueryResponse queryResponse)
 		{
 			Assert.True(queryResponse.IsValid);
 			Assert.Null(queryResponse.ConnectionError);
 			Assert.True(queryResponse.Total > 0, "No hits");
-			Assert.True(queryResponse.Documents.Any());
-			Assert.True(queryResponse.Documents.Count() > 0);
+      Assert.True(queryResponse.Documents.Cast<ElasticSearchProject>().Any());
+      Assert.True(queryResponse.Documents.Cast<ElasticSearchProject>().Count() > 0);
 			Assert.True(queryResponse.Shards.Total > 0);
 			Assert.True(queryResponse.Shards.Successful == queryResponse.Shards.Total);
 			Assert.True(queryResponse.Shards.Failed == 0);

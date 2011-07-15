@@ -1,8 +1,8 @@
-﻿using Exortech.NetReflector;
+﻿//using Exortech.NetReflector;
 
 namespace Thrift.Transport
 {
-	[ReflectorType("SocketSettings")]
+  //[ReflectorType("SocketSettings")]
 	public class TSocketSettings
 	{
 		public static readonly TSocketSettings DefaultSettings = new TSocketSettings
@@ -14,19 +14,19 @@ namespace Thrift.Transport
 			ConnectTimeout = 3000
 		};
 
-		[ReflectorProperty("SendBufferSize", InstanceType = typeof(int), Required = false)]
+		//[ReflectorProperty("SendBufferSize", InstanceType = typeof(int), Required = false)]
 		public int SendBufferSize { get; set; }
 
-		[ReflectorProperty("ReceiveBufferSize", InstanceType = typeof(int), Required = false)]
+		//[ReflectorProperty("ReceiveBufferSize", InstanceType = typeof(int), Required = false)]
 		public int ReceiveBufferSize { get; set; }
 
-		[ReflectorProperty("SendTimeout", InstanceType = typeof(int), Required = false)]
+		//[ReflectorProperty("SendTimeout", InstanceType = typeof(int), Required = false)]
 		public int SendTimeout { get; set; }
 
-		[ReflectorProperty("ReceiveTimeout", InstanceType = typeof(int), Required = false)]
+		//[ReflectorProperty("ReceiveTimeout", InstanceType = typeof(int), Required = false)]
 		public int ReceiveTimeout { get; set; }
 
-		[ReflectorProperty("ConnectTimeout", InstanceType = typeof(int), Required = false)]
+		//[ReflectorProperty("ConnectTimeout", InstanceType = typeof(int), Required = false)]
 		public int ConnectTimeout { get; set; }
 
 		public override bool Equals(object obj)

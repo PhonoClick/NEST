@@ -57,27 +57,42 @@ namespace ElasticSearch.Client
 			return response;
 		}
 
+    public IndicesResponse DeleteIndex() {
+      var path = this.createPath(this.Settings.DefaultIndex);
+      var status = this.Connection.DeleteSync(path);
+
+      var response = new IndicesResponse();
+      try {
+        response = JsonConvert.DeserializeObject<IndicesResponse>(status.Result);
+      }
+      catch { }
+
+      response.ConnectionStatus = status;
+      return response;
+    }
+
         /// <summary>
         /// Deletes a mapping.
         /// </summary>
         /// <typeparam name="T">Mapped type.</typeparam>
         /// <returns>Response status information.</returns>
-        public IndicesResponse DeleteMapping<T>() where T : class
-        {
-            var type = this.InferTypeName<T>();
-            var path = this.createPath(this.Settings.DefaultIndex, type);
-            var status = this.Connection.DeleteSync(path);
+    public IndicesResponse DeleteMapping<T>() where T : class {
+      return DeleteMapping(this.InferTypeName<T>());
+    }
 
-            var response = new IndicesResponse();
-            try
-            {
-                response = JsonConvert.DeserializeObject<IndicesResponse>(status.Result);
-            }
-            catch { }
+	  public IndicesResponse DeleteMapping(string type) {
+      var path = this.createPath(this.Settings.DefaultIndex, type);
+      var status = this.Connection.DeleteSync(path);
 
-            response.ConnectionStatus = status;
-            return response;
-        }
+      var response = new IndicesResponse();
+      try {
+        response = JsonConvert.DeserializeObject<IndicesResponse>(status.Result);
+      }
+      catch { }
+
+      response.ConnectionStatus = status;
+      return response;
+    }
 	}
 
 	[Flags]

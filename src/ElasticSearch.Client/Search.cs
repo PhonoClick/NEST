@@ -16,8 +16,6 @@ namespace ElasticSearch.Client
 		
 		}
 		 
-	
-	
 		protected string FindMemberExpression(Expression expression, Type typeinfo)
 		{
 			if (expression is MemberExpression)
