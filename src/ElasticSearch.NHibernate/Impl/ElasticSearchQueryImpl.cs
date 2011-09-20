@@ -95,7 +95,7 @@ namespace ElasticSearch.NHibernate.Impl {
     }
 
     public IQueryable<SearchResult<T>> ToQueryable<T>() {
-      var result = Execute();
+      var result = Execute<T>();
 
       if (!result.IsValid)
         throw new HibernateException("Failed to fetch any results from Elastic Search server.",
@@ -149,7 +149,7 @@ namespace ElasticSearch.NHibernate.Impl {
     /// <returns></returns>
     /// <remarks>This is not a lazy IEnumerable</remarks>
     public override IEnumerable<T> Enumerable<T>() {
-      var result = Execute();
+      var result = Execute<T>();
 
       if (!result.IsValid)
         throw new HibernateException("Failed to fetch any results from Elastic Search server.",
@@ -192,7 +192,7 @@ namespace ElasticSearch.NHibernate.Impl {
       get { return null; }
     }
 
-    private QueryResponse Execute() {
+    private QueryResponse Execute<T>() {
       var search = new Search() {
         Query = esQuery,
       };
@@ -205,7 +205,12 @@ namespace ElasticSearch.NHibernate.Impl {
       if (highlightFields != null) {
         search = search.HighlightOnFields(highlightFields);
       }
-      return Client.Search(search);
+      
+      var builder = SearchContext.GetBuilderByType(typeof(T));
+      
+      return builder == null 
+              ? Client.Search(search) 
+              : Client.Search(search, builder.GetTypeName());
     }
   }
 }
