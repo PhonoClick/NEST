@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ElasticSearch.Client;
+using ElasticSearch.Client.Thrift;
 using ElasticSearch.NHibernate.Engine;
 using NHibernate;
 using NHibernate.Criterion;
@@ -112,6 +113,18 @@ namespace ElasticSearch.NHibernate.Impl {
                   return new SearchResult<T>(hit, entity);
                 })
         .AsQueryable();
+    }
+
+    public int Scalar<T>(string query) where T : class
+    {
+      var result = ExecuteScalar<T>(query);
+
+      return result.Count;
+    }
+
+    private CountResponse ExecuteScalar<T>(string query) where T : class
+    {
+      return Client.Count<T>(query);
     }
 
     public override IEnumerable Enumerable() {

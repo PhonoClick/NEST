@@ -29,6 +29,8 @@ namespace ElasticSearch.NHibernate {
         IElasticSearchQuery SetHighlightFields<T>();
 
         IQueryable<SearchResult<T>> ToQueryable<T>();
+
+        int Scalar<T>(string query) where T: class;
     }
 
   public class SearchResult<T> {

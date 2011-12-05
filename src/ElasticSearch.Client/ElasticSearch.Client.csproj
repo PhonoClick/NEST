@@ -83,6 +83,7 @@
     <Compile Include="ConnectionSettings.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="ConnectionStatus.cs" />
+    <Compile Include="ElasticClient-Count.cs" />
     <Compile Include="DSL\Highlight.cs" />
     <Compile Include="ElasticClient-Delete.cs" />
     <Compile Include="ElasticClient-Inferno.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryResponse.cs" />
     <Compile Include="Search.cs" />
+    <Compile Include="Thrift\CountResponse.cs" />
     <Compile Include="Thrift\Method.cs" />
     <Compile Include="Thrift\Rest.cs" />
     <Compile Include="Thrift\RestRequest.cs" />
