@@ -36,7 +36,7 @@ namespace ElasticSearch.Client
 		{
 			get { return this._timeOut; }
 		}
-		public string DefaultIndex { get; private set; }
+		public string DefaultIndex { get; set; }
 		public int MaximumAsyncConnections { get; private set; }
 		public Func<Type,string> TypeNameInferrer { get; private set; }
 		

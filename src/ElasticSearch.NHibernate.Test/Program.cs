@@ -103,7 +103,7 @@ namespace ElasticSearch.NHibernate.Test {
           .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Entity>())
           .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
           .ExposeConfiguration(c => ElasticSearch.Configure(c)
-                                      .ConnectionSettings(connectionSettings)
+                                      .ConnectionSettings(()=> connectionSettings)
                                       .Mappings()
                                       .BuildConfiguration())
           .BuildSessionFactory();

@@ -59,11 +59,12 @@ namespace ElasticSearch.NHibernate.Engine {
       return Convert.ChangeType(id, GetIdFieldType());
     }
 
-    public IDictionary<string, object> GetDocumentFromEntity(object entity, Dictionary<string, object> doc) {
+    public IDictionary<string, object> GetDocumentFromEntity(SearchContext searchContext, object entity, Dictionary<string, object> doc) {
       var fieldsMap = serializedFields
         .Select(f => {
                   var name = f.Name;
-                  var value = f.Get(entity);
+                  var orgValue = f.Get(entity);
+                  var value = GetIndexableValue(searchContext, orgValue, doc);
                   var attr = f.Attributes<FieldAttribute>().FirstOrDefault();
                   string docKey = null;
                   if (doc != null)
@@ -91,6 +92,30 @@ namespace ElasticSearch.NHibernate.Engine {
         .Where(f => f.Attributes<FieldAttribute>().Count > 0)
         .Select(f => f.Name)
         .ToArray();
+    }
+
+    private static object GetIndexableValue(SearchContext searchContext, object value, Dictionary<string, object> doc)
+    {
+      if (value == null)
+      {
+        return null;
+      }
+
+      var propType = value.GetType();
+      var isPrimitive = (propType.IsPrimitive || propType == typeof (string));
+      if (isPrimitive)
+      {
+        return value;
+      }
+
+      var builder = searchContext.GetBuilderByType(propType);
+      if(builder == null)
+      {
+        return value;
+      }
+
+      var indexableValue = builder.GetDocumentFromEntity(searchContext, value, doc);
+      return indexableValue;
     }
   }
 }

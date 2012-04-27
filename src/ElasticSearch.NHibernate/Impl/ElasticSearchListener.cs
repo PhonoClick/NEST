@@ -84,13 +84,15 @@ namespace ElasticSearch.NHibernate.Impl {
       if (e.Entity == null)
         return;
 
-      var builder = SearchContext.GetBuilder(e.Entity);
-      if (builder == null)
+      var isIndexed = SearchContext.IsIndexed(e.Entity.GetType());
+      if (!isIndexed)
         return;
 
       if (DeferAction(e.Session))
         Add(e.Session.Transaction, e);
-      else {
+      else
+      {
+        var builder = SearchContext.GetBuilder(e.Entity);
         DoAdd(e, builder);
         if (Commit)
           Client.Refresh();
@@ -126,7 +128,7 @@ namespace ElasticSearch.NHibernate.Impl {
                                                 builder.GetTypeName(),
                                                 builder.GetIdFromEntity(e.Entity));
       Client.Index(
-        builder.GetDocumentFromEntity(e.Entity, doc),
+        builder.GetDocumentFromEntity(SearchContext, e.Entity, doc),
         Client.Settings.DefaultIndex,
         builder.GetTypeName(),
         builder.GetIdFromEntity(e.Entity));

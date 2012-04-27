@@ -12,15 +12,22 @@ using NHibernate.Proxy;
 
 namespace ElasticSearch.NHibernate {
   class SearchContext {
-    private readonly IConnectionSettings connectionSettings;
+    internal readonly Func<IConnectionSettings> connectionSettingsGetter;
 
-    public SearchContext(IConnectionSettings connectionSettings) {
-      this.connectionSettings = connectionSettings;
-      this.Client = new ElasticClient(connectionSettings);
+    public SearchContext(Func<IConnectionSettings> connectionSettingsGetter) {
+      this.connectionSettingsGetter = connectionSettingsGetter;
+      _client = new ElasticClient(connectionSettingsGetter.Invoke());
       DocumentBuilderMap = new Dictionary<Type, DocumentBuilder>();
     }
 
-    public ElasticClient Client { get; private set; }
+    private ElasticClient _client;
+    public ElasticClient Client { 
+      get {
+        _client.Settings.DefaultIndex = connectionSettingsGetter.Invoke().DefaultIndex;
+        return _client;
+      }
+      set { _client = value; }
+    }
 
     public Dictionary<Type, DocumentBuilder> DocumentBuilderMap { get; private set; }
 
@@ -41,13 +48,19 @@ namespace ElasticSearch.NHibernate {
     }
 
     public void AddMappedClass(Type type) {
-      if (IsIndexed(type)) {
+      if (IsIndexed(type) || IsSubIndexed(type))
+      {
         DocumentBuilderMap.Add(type, new DocumentBuilder(type));
       }
     }
 
-    private static bool IsIndexed(Type type) {
+    public static bool IsIndexed(Type type) {
       return type.GetCustomAttributes(typeof(IndexedAttribute), true).Any();
+    }
+
+    private static bool IsSubIndexed(Type type)
+    {
+      return type.GetCustomAttributes(typeof(SubIndexedAttribute), true).Any();
     }
 
     public DocumentBuilder GetBuilder(object o) {

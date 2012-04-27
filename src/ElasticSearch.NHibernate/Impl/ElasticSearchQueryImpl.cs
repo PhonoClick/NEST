@@ -115,16 +115,21 @@ namespace ElasticSearch.NHibernate.Impl {
         .AsQueryable();
     }
 
-    public int Scalar<T>(string query) where T : class
+    public QueryResponse RawResult<T>()
     {
-      var result = ExecuteScalar<T>(query);
+      var result = Execute<T>();
+      if (!result.IsValid)
+        throw new HibernateException("Failed to fetch any results from Elastic Search server.",
+          result.ConnectionError.OriginalException);
 
-      return result.Count;
+      return result;
     }
 
-    private CountResponse ExecuteScalar<T>(string query) where T : class
+    public int Scalar<T>() where T : class
     {
-      return Client.Count<T>(query);
+      var result = ExecuteScalar<T>();
+
+      return result.Count;
     }
 
     public override IEnumerable Enumerable() {
@@ -203,6 +208,18 @@ namespace ElasticSearch.NHibernate.Impl {
     /// </summary>
     protected override IDictionary<string, LockMode> LockModes {
       get { return null; }
+    }
+
+    private CountResponse ExecuteScalar<T>() where T : class
+    {
+      var search = new Search()
+      {
+        Query = esQuery,
+      };
+      var builder = SearchContext.GetBuilderByType(typeof(T));
+      return builder == null
+              ? Client.Count(search)
+              : Client.Count(search, builder.GetTypeName());
     }
 
     private QueryResponse Execute<T>() {

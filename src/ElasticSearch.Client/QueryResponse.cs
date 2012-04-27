@@ -106,7 +106,7 @@ namespace ElasticSearch.Client
           .Properties()
           .ToDictionary(
             p => p.Name,
-            p => p.Value.Value<object>()
+            p => p.Value.ToString() as object
           );
       }
     }

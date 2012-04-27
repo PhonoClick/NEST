@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Attributes\FieldAttribute.cs" />
     <Compile Include="Attributes\IdFieldAttribute.cs" />
+    <Compile Include="Attributes\SubIndexedAttribute.cs" />
     <Compile Include="Engine\DocumentBuilder.cs" />
     <Compile Include="ElasticSearch.cs" />
     <Compile Include="FluentElasticSearchConfiguration.cs" />

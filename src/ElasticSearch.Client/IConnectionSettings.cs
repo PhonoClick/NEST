@@ -13,7 +13,7 @@ namespace ElasticSearch.Client
 		string ProxyAddress { get; }
 		string Username { get;  }
 		string Password { get; }
-		string DefaultIndex { get; }
+    string DefaultIndex { get; set; }
 		int MaximumAsyncConnections { get; }
 		Func<Type, string> TypeNameInferrer { get; }
 	}

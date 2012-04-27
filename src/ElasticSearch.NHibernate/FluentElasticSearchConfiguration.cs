@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using ElasticSearch.Client;
 using ElasticSearch.NHibernate.Impl;
 using NHibernate.Cfg;
@@ -6,14 +7,14 @@ using NHibernate.Cfg;
 namespace ElasticSearch.NHibernate {
   public class FluentElasticSearchConfiguration {
     private readonly Configuration cfg;
-    private IConnectionSettings connectionSettings;
+    private Func<IConnectionSettings> connectionSettingsGetter;
 
     protected internal FluentElasticSearchConfiguration(Configuration cfg) {
       this.cfg = cfg;
     }
 
-    public FluentElasticSearchConfiguration ConnectionSettings(IConnectionSettings settings) {
-      this.connectionSettings = settings;
+    public FluentElasticSearchConfiguration ConnectionSettings(Func<IConnectionSettings> settingsGetter) {
+      this.connectionSettingsGetter = settingsGetter;
       return this;
     }
 
@@ -23,7 +24,7 @@ namespace ElasticSearch.NHibernate {
     }
 
     public Configuration BuildConfiguration() {
-      var searchContext = new SearchContext(connectionSettings);
+      var searchContext = new SearchContext(connectionSettingsGetter);
 
       foreach (var type in cfg.ClassMappings.Select(classMapping => classMapping.MappedClass)) {
         searchContext.AddMappedClass(type);

@@ -14,6 +14,7 @@
 // limitations under the License.
 #endregion
 
+using System.Collections.Generic;
 using System.Linq;
 using ElasticSearch.Client;
 using NHibernate;
@@ -30,7 +31,9 @@ namespace ElasticSearch.NHibernate {
 
         IQueryable<SearchResult<T>> ToQueryable<T>();
 
-        int Scalar<T>(string query) where T: class;
+        int Scalar<T>() where T: class;
+
+        QueryResponse RawResult<T>();
     }
 
   public class SearchResult<T> {
