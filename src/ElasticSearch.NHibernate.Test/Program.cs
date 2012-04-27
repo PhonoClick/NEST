@@ -24,10 +24,19 @@ namespace ElasticSearch.NHibernate.Test {
     public virtual int Id { get; set; }
   }
 
+  [SubIndexed]
+  public class Nested : Entity
+  {
+    [Field]
+    public virtual string Prop1 { get; set; }
+    public virtual string Prop2 { get; set; }
+  }
+
   [Indexed]
   public class Post : Entity {
     public Post() {
       Comments = new List<Comment>();
+      Nesteds = new List<Nested>();
     }
 
     [Field]
@@ -41,9 +50,18 @@ namespace ElasticSearch.NHibernate.Test {
 
     public virtual IList<Comment> Comments { get; set; }
 
+    [Field]
+    public virtual IList<Nested> Nesteds { get; set; }
+
     public virtual Post AddComment(Comment comment) {
       Comments.Add(comment);
       comment.Post = this;
+      return this;
+    }
+
+    public virtual Post AddNested(Nested nested)
+    {
+      Nesteds.Add(nested);
       return this;
     }
 
@@ -69,6 +87,15 @@ namespace ElasticSearch.NHibernate.Test {
   /*
    * Fluent Mappings
    */
+  public class NestedMap : ClassMap<Nested>
+  {
+    public NestedMap()
+    {
+      Id(a => a.Id);
+      Map(x => x.Prop1);
+      Map(x => x.Prop2);
+    }
+  }
 
   public class PostMap : ClassMap<Post> {
     public PostMap() {
@@ -79,6 +106,7 @@ namespace ElasticSearch.NHibernate.Test {
       Map(a => a.CreationDate);
       Map(a => a.UpdateDate);
       HasMany(a => a.Comments);
+      HasMany(a => a.Nesteds);
     }
   }
 
@@ -112,50 +140,50 @@ namespace ElasticSearch.NHibernate.Test {
 
 
 
-        using (var session = factory.OpenSession()) {
-          var p = session.Get<Post>(originalPost.Id);
-          // Update the name of post and null-out the body.
-          p.Body = null;
-          p.Author = "ufukiko";
-          p.Title = "Test title";
-          //session.Save(p);
-          session.Flush();
-        }
+        //using (var session = factory.OpenSession()) {
+        //  var p = session.Get<Post>(originalPost.Id);
+        //  // Update the name of post and null-out the body.
+        //  p.Body = null;
+        //  p.Author = "ufukiko";
+        //  p.Title = "Test title";
+        //  //session.Save(p);
+        //  session.Flush();
+        //}
 
-        using (var session = factory.OpenSession()) {
-          // Test if everything was saved....
-          foreach (var post in session.Query<Post>()) {
-            Console.WriteLine("Got Post [{0}] with comment ids ({1})", post, string.Join(", ", post.Comments.Select(c => c.Id.ToString())));
-          }
-          foreach (var comment in session.Query<Comment>()) {
-            Console.WriteLine("Got Comment [{0}] with post id ({1})", comment, comment.Post.Id);
-          }
+        //using (var session = factory.OpenSession()) {
+        //  // Test if everything was saved....
+        //  foreach (var post in session.Query<Post>()) {
+        //    Console.WriteLine("Got Post [{0}] with comment ids ({1})", post, string.Join(", ", post.Comments.Select(c => c.Id.ToString())));
+        //  }
+        //  foreach (var comment in session.Query<Comment>()) {
+        //    Console.WriteLine("Got Comment [{0}] with post id ({1})", comment, comment.Post.Id);
+        //  }
 
-          // Now test search session.
-          var searchSession = ElasticSearch.CreateFullTextSession(session);
+        //  // Now test search session.
+        //  var searchSession = ElasticSearch.CreateFullTextSession(session);
 
-          searchSession.Refresh();
+        //  searchSession.Refresh();
 
-          var results = searchSession
-            .CreateFullTextQuery(new Query(new QueryString("blog")))
-            .SetFirstResult(0)
-            .SetMaxResults(10)
-            .SetHighlightFields("author", "body")
-            .ToQueryable<object>();
+        //  var results = searchSession
+        //    .CreateFullTextQuery(new Query(new QueryString("blog")))
+        //    .SetFirstResult(0)
+        //    .SetMaxResults(10)
+        //    .SetHighlightFields("author", "body")
+        //    .ToQueryable<object>();
 
-          foreach (var result in results) {
-            if (result.Entity is Comment) {
-              Console.WriteLine("+-+- Got comment by {0} : {1}", (result.Entity as Comment).Author, (result.Entity as Comment).Body);
-              Console.WriteLine("     Score: {0}", result.Hit.Score);
-              Console.WriteLine("     Highlights: {0}", HighlightsToString(result));
-            }
-            else if (result.Entity is Post) {
-              Console.WriteLine("+-+- Got post by {0} : {1}", (result.Entity as Post).Author, (result.Entity as Post).Body);
-              Console.WriteLine("     Score: {0}", result.Hit.Score);
-              Console.WriteLine("     Highlights: {0}", HighlightsToString(result));
-            }
-          }
-        }
+        //  foreach (var result in results) {
+        //    if (result.Entity is Comment) {
+        //      Console.WriteLine("+-+- Got comment by {0} : {1}", (result.Entity as Comment).Author, (result.Entity as Comment).Body);
+        //      Console.WriteLine("     Score: {0}", result.Hit.Score);
+        //      Console.WriteLine("     Highlights: {0}", HighlightsToString(result));
+        //    }
+        //    else if (result.Entity is Post) {
+        //      Console.WriteLine("+-+- Got post by {0} : {1}", (result.Entity as Post).Author, (result.Entity as Post).Body);
+        //      Console.WriteLine("     Score: {0}", result.Hit.Score);
+        //      Console.WriteLine("     Highlights: {0}", HighlightsToString(result));
+        //    }
+        //  }
+        //}
       }
       catch (Exception ex) {
         Console.WriteLine(ex);
@@ -196,8 +224,10 @@ namespace ElasticSearch.NHibernate.Test {
           .AddComment(new Comment {
                                     Author = "ufuk",
                                     Body = "Thanks guys for all the comments",
-                                  });
-
+                                  })
+          .AddNested(new Nested { Prop1 = "Prop1", 
+                                  Prop2 = "Prop2" 
+                                });
 
         session.Save(post);
         foreach (var comment in post.Comments) {

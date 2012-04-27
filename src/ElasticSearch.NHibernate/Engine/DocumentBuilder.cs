@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -106,6 +107,21 @@ namespace ElasticSearch.NHibernate.Engine {
       if (isPrimitive)
       {
         return value;
+      }
+
+      if (typeof(IEnumerable).IsAssignableFrom(propType))
+      {
+        var collection = value as IEnumerable;
+        var collectionType = propType.GetGenericArguments()[0];
+        var collectionBuilder = searchContext.GetBuilderByType(collectionType);
+        var list = new ArrayList();
+        foreach (var item in collection)
+        {
+          var entity = collectionBuilder.GetDocumentFromEntity(searchContext, item, doc);
+          list.Add(entity);
+        }
+
+        return list;
       }
 
       var builder = searchContext.GetBuilderByType(propType);
