@@ -114,6 +114,7 @@ namespace ElasticSearch.NHibernate.Engine {
         var collection = value as IEnumerable;
         var collectionType = propType.GetGenericArguments()[0];
         var collectionBuilder = searchContext.GetBuilderByType(collectionType);
+        if (collectionBuilder == null) return value;
         var list = new ArrayList();
         foreach (var item in collection)
         {
