@@ -43,7 +43,7 @@ namespace ElasticSearch.NHibernate {
         if (builder == null)
           return;
 
-        SearchContext.Client.Index(builder.GetDocumentFromEntity(searchContext, o, null),
+        SearchContext.Client.Index(builder.GetDocumentFromEntity(session, searchContext, o, null),
           SearchContext.Client.Settings.DefaultIndex,
           builder.GetTypeName(),
           builder.GetIdFromEntity(o));

@@ -25,18 +25,26 @@ namespace ElasticSearch.NHibernate.Test {
   }
 
   [SubIndexed]
-  public class Nested : Entity
+  public class NestedProperty : Entity
   {
     [Field]
     public virtual string Prop1 { get; set; }
     public virtual string Prop2 { get; set; }
   }
 
+  [SubIndexed]
+  public class NestedCollectionItem : Entity
+  {
+    [Field]
+    public virtual string Prop3 { get; set; }
+    public virtual string Prop4 { get; set; }
+  }
+
   [Indexed]
   public class Post : Entity {
     public Post() {
       Comments = new List<Comment>();
-      Nesteds = new List<Nested>();
+      NestedList = new List<NestedCollectionItem>();
     }
 
     [Field]
@@ -51,17 +59,14 @@ namespace ElasticSearch.NHibernate.Test {
     public virtual IList<Comment> Comments { get; set; }
 
     [Field]
-    public virtual IList<Nested> Nesteds { get; set; }
+    public virtual NestedProperty NestedProperty { get; set; }
+
+    [Field]
+    public virtual IList<NestedCollectionItem> NestedList { get; set; }
 
     public virtual Post AddComment(Comment comment) {
       Comments.Add(comment);
       comment.Post = this;
-      return this;
-    }
-
-    public virtual Post AddNested(Nested nested)
-    {
-      Nesteds.Add(nested);
       return this;
     }
 
@@ -87,13 +92,23 @@ namespace ElasticSearch.NHibernate.Test {
   /*
    * Fluent Mappings
    */
-  public class NestedMap : ClassMap<Nested>
+  public class NestedMap : ClassMap<NestedProperty>
   {
     public NestedMap()
     {
       Id(a => a.Id);
       Map(x => x.Prop1);
       Map(x => x.Prop2);
+    }
+  }
+
+  public class NestedCollectionItemMap : ClassMap<NestedCollectionItem>
+  {
+    public NestedCollectionItemMap()
+    {
+      Id(a => a.Id);
+      Map(x => x.Prop3);
+      Map(x => x.Prop4);
     }
   }
 
@@ -106,7 +121,8 @@ namespace ElasticSearch.NHibernate.Test {
       Map(a => a.CreationDate);
       Map(a => a.UpdateDate);
       HasMany(a => a.Comments);
-      HasMany(a => a.Nesteds);
+      References(a => a.NestedProperty);
+      HasMany(a => a.NestedList).Cascade.AllDeleteOrphan().Inverse();
     }
   }
 
@@ -123,7 +139,7 @@ namespace ElasticSearch.NHibernate.Test {
     static void Main(string[] args) {
       try {
         File.Delete("db.sqlite");
-        IConnectionSettings connectionSettings = new ConnectionSettings("localhost", 9200)
+        IConnectionSettings connectionSettings = new ConnectionSettings("demeter", 9200)
           .SetDefaultIndex("nhibernate");
 
         var factory = Fluently.Configure()
@@ -140,15 +156,17 @@ namespace ElasticSearch.NHibernate.Test {
 
 
 
-        //using (var session = factory.OpenSession()) {
-        //  var p = session.Get<Post>(originalPost.Id);
-        //  // Update the name of post and null-out the body.
-        //  p.Body = null;
-        //  p.Author = "ufukiko";
-        //  p.Title = "Test title";
-        //  //session.Save(p);
-        //  session.Flush();
-        //}
+        using (var session = factory.OpenSession())
+        {
+          var p = session.Get<Post>(originalPost.Id);
+          // Update the name of post and null-out the body.
+          p.Body = null;
+          p.Author = "ufukiko";
+          p.Title = "Test title";
+
+          //session.Save(p);
+          session.Flush();
+        }
 
         //using (var session = factory.OpenSession()) {
         //  // Test if everything was saved....
@@ -207,7 +225,8 @@ namespace ElasticSearch.NHibernate.Test {
                               Title = "Test Post",
                               Body = "This is a test blog post...",
                               CreationDate = DateTime.Now.AddDays(-1.0),
-                              UpdateDate = DateTime.Now
+                              UpdateDate = DateTime.Now,
+                              NestedProperty = new NestedProperty {Prop1 = "prop1", Prop2 = "prop2"}
                             }
           .AddComment(new Comment {
                                     Author = "Anonymous Coward 1",
@@ -224,15 +243,17 @@ namespace ElasticSearch.NHibernate.Test {
           .AddComment(new Comment {
                                     Author = "ufuk",
                                     Body = "Thanks guys for all the comments",
-                                  })
-          .AddNested(new Nested { Prop1 = "Prop1", 
-                                  Prop2 = "Prop2" 
-                                });
+                                  });
 
-        session.Save(post);
+        post.NestedList.Add(new NestedCollectionItem {Prop3 = "Prop3", Prop4 = "Prop4"});
+
         foreach (var comment in post.Comments) {
           session.Save(comment);
         }
+
+        session.Save(post.NestedProperty);
+        session.Save(post);
+
         return post;
         //tx.Commit();
       }

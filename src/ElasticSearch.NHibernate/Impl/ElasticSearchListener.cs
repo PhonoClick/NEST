@@ -128,7 +128,7 @@ namespace ElasticSearch.NHibernate.Impl {
                                                 builder.GetTypeName(),
                                                 builder.GetIdFromEntity(e.Entity));
       Client.Index(
-        builder.GetDocumentFromEntity(SearchContext, e.Entity, doc),
+        builder.GetDocumentFromEntity(e.Session, SearchContext, e.Entity, doc),
         Client.Settings.DefaultIndex,
         builder.GetTypeName(),
         builder.GetIdFromEntity(e.Entity));
