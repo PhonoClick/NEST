@@ -29,8 +29,8 @@ namespace ElasticSearch.NHibernate.Impl {
   public class ElasticSearchListener : IAutoFlushEventListener, IFlushEventListener, IPostInsertEventListener, IPostDeleteEventListener, IPostUpdateEventListener {
     private static readonly ILog Logger = LogManager.GetLogger(typeof (ElasticSearchListener));
 
-    private readonly WeakHashtable entitiesToAdd = new WeakHashtable();
-    private readonly WeakHashtable entitiesToDelete = new WeakHashtable();
+    private readonly Hashtable entitiesToAdd = new Hashtable();
+    private readonly Hashtable entitiesToDelete = new Hashtable();
 
     internal SearchContext SearchContext { get; set; }
 
@@ -48,7 +48,7 @@ namespace ElasticSearch.NHibernate.Impl {
       AddToHashtable(entitiesToDelete, s, entity);
     }
 
-    private void AddToHashtable(WeakHashtable table, ITransaction s, object entity) {
+    private void AddToHashtable(Hashtable table, ITransaction s, object entity) {
       lock (table.SyncRoot) {
         if (!table.Contains(s)) {
           table.Add(s, new ArrayList());
@@ -143,13 +143,18 @@ namespace ElasticSearch.NHibernate.Impl {
       Client.Delete(Client.Settings.DefaultIndex, builder.GetTypeName(), builder.GetIdFromEntity(e.Entity));
     }
 
-    public bool DoWithEntities(WeakHashtable entities, ITransaction s, Action<AbstractPostDatabaseOperationEvent> action) {
+    public bool DoWithEntities(Hashtable entities, ITransaction s, Action<AbstractPostDatabaseOperationEvent> action) {
       lock (entities.SyncRoot) {
         try {
           var hasToDo = entities.Contains(s);
           if (hasToDo)
-            foreach (var i in (IList)entities[s])
-              action((AbstractPostDatabaseOperationEvent)i);
+          {
+            var iList = (IList) entities[s];
+            foreach (var i in iList)
+            {
+              action((AbstractPostDatabaseOperationEvent) i);
+            }
+          }
           entities.Remove(s);
           return hasToDo;
         }
