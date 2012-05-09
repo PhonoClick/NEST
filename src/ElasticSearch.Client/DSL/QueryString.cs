@@ -94,7 +94,11 @@ namespace ElasticSearch.Client.DSL
 		/// </summary>
     [JsonProperty(PropertyName = "tie_breaker")]
     public int TieBreaker { get; private set; }
-		
+    /// <summary>
+    /// When true analyzes wildcards for ascii folding.
+    /// </summary>
+    [JsonProperty(PropertyName = "analyze_wildcard")]
+    public bool AnalyzeWildcard { get; private set; }		
 		
 		#endregion
 		
@@ -251,6 +255,15 @@ namespace ElasticSearch.Client.DSL
 			this.TieBreaker = tieBreaker;
 			return this;
 		}
-		
+    /// <summary>
+    /// When true analyzes wildcards for ascii folding.
+    /// </summary>
+    /// <param name="analyzeWildcard">Defaults to false.</param>
+    /// <returns></returns>
+    public QueryString SetAnalyzeWildcard(bool analyzeWildcard)
+    {
+      this.AnalyzeWildcard = analyzeWildcard;
+      return this;
+    }
 	}
 }
