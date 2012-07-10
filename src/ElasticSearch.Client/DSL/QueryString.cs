@@ -32,7 +32,7 @@ namespace ElasticSearch.Client.DSL
 		/// For example (the name is boosted by 5 using ^5 notation):
 		/// </summary>
     [JsonProperty(PropertyName = "fields")]
-    public List<Field> Fields { get; private set; }
+    public List<string> Fields { get; private set; }
 		/// <summary>
 		/// The default operator used if no explicit operator is specified. For example, 
 		/// with a default operator of OR, the query capital of Hungary is translated to capital OR of OR Hungary, 
@@ -137,7 +137,7 @@ namespace ElasticSearch.Client.DSL
 		/// <returns></returns>
 		public QueryString SetFields(List<Field> fields)
 		{
-			this.Fields = fields;
+			this.Fields = fields.Select(x=> x.Name).ToList();
 			return this;
 		}
 

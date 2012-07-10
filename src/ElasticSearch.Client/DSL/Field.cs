@@ -12,10 +12,10 @@ namespace ElasticSearch.Client.DSL
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     [DefaultValue(default(string))]
 		public string Name { get; private set; }
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore,IsReference = false)]
     [DefaultValue(default(string))]
     public string Value { get; private set; }
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore,IsReference = false)]
     [DefaultValue(null)]
     public double? Boost { get; private set; }
 
