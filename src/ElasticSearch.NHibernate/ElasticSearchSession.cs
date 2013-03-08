@@ -63,6 +63,12 @@ namespace ElasticSearch.NHibernate {
         return result != null && result.Success;
       }
 
+      public bool PurgeAll(string domainName)
+      {
+        var result = SearchContext.Client.DeleteIndex(domainName);
+        return result != null && result.Success;
+      }
+
       public void Refresh() {
         SearchContext.Client.Refresh();
       }

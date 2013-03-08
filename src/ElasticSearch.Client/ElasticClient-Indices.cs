@@ -57,6 +57,22 @@ namespace ElasticSearch.Client
 			return response;
 		}
 
+    public IndicesResponse DeleteIndex(string indexName)
+    {
+      var path = this.createPath(indexName);
+      var status = this.Connection.DeleteSync(path);
+
+      var response = new IndicesResponse();
+      try
+      {
+        response = JsonConvert.DeserializeObject<IndicesResponse>(status.Result);
+      }
+      catch { }
+
+      response.ConnectionStatus = status;
+      return response;
+    }
+
     public IndicesResponse DeleteIndex() {
       var path = this.createPath(this.Settings.DefaultIndex);
       var status = this.Connection.DeleteSync(path);

@@ -24,6 +24,7 @@ namespace ElasticSearch.NHibernate {
         void Index(object o);
         bool PurgeAll(Type type);
         bool PurgeAll();
+        bool PurgeAll(string indexName);
         void Refresh();
     }
 }
