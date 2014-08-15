@@ -15,6 +15,7 @@
 #endregion
 
 using System;
+using ElasticSearch.Client;
 using ElasticSearch.Client.DSL;
 using ElasticSearch.NHibernate.Impl;
 using NHibernate;
@@ -32,6 +33,11 @@ namespace ElasticSearch.NHibernate {
           throw new ArgumentNullException("session");
 
         this.session = session;
+      }
+
+      public QueryResponse RawQuery(string query, params string[] typeNames)
+      {
+        return SearchContext.Client.Query(query, typeNames);
       }
 
       public IElasticSearchQuery CreateFullTextQuery(Query query) {

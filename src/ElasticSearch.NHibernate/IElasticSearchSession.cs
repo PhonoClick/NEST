@@ -15,11 +15,13 @@
 #endregion
 
 using System;
+using ElasticSearch.Client;
 using ElasticSearch.Client.DSL;
 using NHibernate;
 
 namespace ElasticSearch.NHibernate {
     public interface IElasticSearchSession: ISession {
+        QueryResponse RawQuery(string query, params string[] typeNames);
         IElasticSearchQuery CreateFullTextQuery(Query search);
         void Index(object o);
         bool PurgeAll(Type type);
