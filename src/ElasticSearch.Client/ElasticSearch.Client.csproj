@@ -113,6 +113,9 @@
     <Compile Include="ElasticSearchJsonResolver.cs" />
     <Compile Include="ElasticSearchVersionInfo.cs" />
     <Compile Include="Exception\ElasticSearchException.cs" />
+    <Compile Include="Facets\Facet.cs" />
+    <Compile Include="Facets\FacetItem.cs" />
+    <Compile Include="Facets\TermFacet.cs" />
     <Compile Include="IConnection.cs" />
     <Compile Include="IConnectionSettings.cs" />
     <Compile Include="Inflector.cs" />

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ElasticSearch.Client.Facets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,6 +16,7 @@ namespace ElasticSearch.Client
     public QueryResponse ()
     {
       this.IsValid = true;
+      this.Facets = new Dictionary<string, TermFacet>();
     }
     [JsonProperty(PropertyName = "_shards")]
     public ShardsMetaData Shards { get; internal set; }
@@ -23,6 +25,9 @@ namespace ElasticSearch.Client
     [JsonProperty(PropertyName = "took")]
     public int ElapsedMilliseconds { get; internal set; }
 
+    [JsonProperty(PropertyName = "facets")]
+    //[JsonConverter(typeof(DictionaryKeysAreNotPropertyNamesJsonConverter))]
+    public IDictionary<string, TermFacet> Facets { get; internal set; }
 
     public int Total
     {
