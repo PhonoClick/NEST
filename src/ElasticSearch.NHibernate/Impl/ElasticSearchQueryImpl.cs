@@ -203,6 +203,11 @@ namespace ElasticSearch.NHibernate.Impl {
       return (T[])arrayList.ToArray(typeof(T));
     }
 
+    protected override IEnumerable<ITranslator> GetTranslators(ISessionImplementor sessionImplementor, QueryParameters queryParameters)
+    {
+      throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Null
     /// </summary>

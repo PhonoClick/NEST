@@ -132,7 +132,12 @@ namespace ElasticSearch.NHibernate.Impl {
             return session.Save(entityName, obj);
         }
 
-        public void SaveOrUpdate(object obj) {
+      public void Save(string entityName, object obj, object id)
+      {
+        session.Save(entityName, obj, id);
+      }
+
+      public void SaveOrUpdate(object obj) {
             session.SaveOrUpdate(obj);
         }
 
@@ -140,7 +145,12 @@ namespace ElasticSearch.NHibernate.Impl {
             session.SaveOrUpdate(entityName, obj);
         }
 
-        public void Update(object obj) {
+      public void SaveOrUpdate(string entityName, object obj, object id)
+      {
+        session.SaveOrUpdate(entityName, obj, id);
+      }
+
+      public void Update(object obj) {
             session.Update(obj);
         }
 
@@ -152,7 +162,12 @@ namespace ElasticSearch.NHibernate.Impl {
             session.Update(entityName, obj);
         }
 
-        public object Merge(object obj) {
+      public void Update(string entityName, object obj, object id)
+      {
+        session.Update(entityName, obj, id);
+      }
+
+      public object Merge(object obj) {
             return session.Merge(obj);
         }
 
@@ -160,7 +175,17 @@ namespace ElasticSearch.NHibernate.Impl {
             return session.Merge(entityName, obj);
         }
 
-        public void Persist(object obj) {
+      public T Merge<T>(T entity) where T : class
+      {
+        return session.Merge(entity);
+      }
+
+      public T Merge<T>(string entityName, T entity) where T : class
+      {
+        return session.Merge(entityName, entity); 
+      }
+
+      public void Persist(object obj) {
             session.Persist(obj);
         }
 
@@ -168,17 +193,17 @@ namespace ElasticSearch.NHibernate.Impl {
             session.Persist(entityName, obj);
         }
 
-        public object SaveOrUpdateCopy(object obj) {
-#pragma warning disable 612,618
-            return session.SaveOrUpdateCopy(obj);
-#pragma warning restore 612,618
-        }
+//        public object SaveOrUpdateCopy(object obj) {
+//#pragma warning disable 612,618
+//            return session.SaveOrUpdateCopy(obj);
+//#pragma warning restore 612,618
+//        }
 
-        public object SaveOrUpdateCopy(object obj, object id) {
-#pragma warning disable 612,618
-            return session.SaveOrUpdateCopy(obj, id);
-#pragma warning restore 612,618
-        }
+//        public object SaveOrUpdateCopy(object obj, object id) {
+//#pragma warning disable 612,618
+//            return session.SaveOrUpdateCopy(obj, id);
+//#pragma warning restore 612,618
+//        }
 
         public void Delete(object obj) {
             session.Delete(obj);
@@ -260,7 +285,17 @@ namespace ElasticSearch.NHibernate.Impl {
             return session.QueryOver<T>(alias);
         }
 
-        public IQuery CreateQuery(string queryString) {
+      public IQueryOver<T, T> QueryOver<T>(string entityName) where T : class
+      {
+        return session.QueryOver<T>(entityName);
+      }
+
+      public IQueryOver<T, T> QueryOver<T>(string entityName, Expression<Func<T>> alias) where T : class
+      {
+        return session.QueryOver<T>(entityName, alias);
+      }
+
+      public IQuery CreateQuery(string queryString) {
             return session.CreateQuery(queryString);
         }
 
