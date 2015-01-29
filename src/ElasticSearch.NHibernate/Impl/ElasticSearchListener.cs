@@ -89,7 +89,9 @@ namespace ElasticSearch.NHibernate.Impl {
         return;
 
       if (DeferAction(e.Session))
+      {
         Add(e.Session.Transaction, e);
+      }
       else
       {
         var builder = SearchContext.GetBuilder(e.Entity);
@@ -127,6 +129,13 @@ namespace ElasticSearch.NHibernate.Impl {
                                                 Client.Settings.DefaultIndex,
                                                 builder.GetTypeName(),
                                                 builder.GetIdFromEntity(e.Entity));
+
+      // try this later
+      //Client.IndexAsync(
+      //  builder.GetDocumentFromEntity(e.Session, SearchContext, e.Entity, doc),
+      //  Client.Settings.DefaultIndex,
+      //  builder.GetTypeName(),
+      //  builder.GetIdFromEntity(e.Entity),null);
       Client.Index(
         builder.GetDocumentFromEntity(e.Session, SearchContext, e.Entity, doc),
         Client.Settings.DefaultIndex,

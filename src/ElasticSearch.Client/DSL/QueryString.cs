@@ -56,7 +56,7 @@ namespace ElasticSearch.Client.DSL
 		/// Whether terms of wildcard, prefix, fuzzy, and range queries are to be automatically lower-cased or
 		/// not (since they are not analyzed). Defaults to true.
 		/// </summary>
-    [JsonProperty(PropertyName = "lowercase_expended_terms")]
+    //[JsonProperty(PropertyName = "lowercase_expended_terms")]
     public bool Lowercase_Expended_Terms { get; private set; }
 		/// <summary>
 		/// Get wheter position increments are enabled in result queries. Defaults to true.

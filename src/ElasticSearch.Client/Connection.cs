@@ -3,6 +3,8 @@ using System.Text;
 using System.Net;
 using System.Threading;
 using System.IO;
+using log4net;
+using log4net.Repository.Hierarchy;
 
 namespace ElasticSearch.Client
 {

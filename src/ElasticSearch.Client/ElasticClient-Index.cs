@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using log4net;
 using Newtonsoft.Json;
 
 namespace ElasticSearch.Client
 {
-
-	public partial class ElasticClient
+  public partial class ElasticClient
 	{
     public ConnectionStatus Index(object @object) {
       var path = this.CreatePathFor(@object);
@@ -38,9 +38,8 @@ namespace ElasticSearch.Client
 		private ConnectionStatus _indexToPath(object @object, string path)
 		{
 			path.ThrowIfNull("path");
-
+      
 		  string json = SerializeObject(@object);
-
 			return this.Connection.PostSync(path, json);
 		}
 
