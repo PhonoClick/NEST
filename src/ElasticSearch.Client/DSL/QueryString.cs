@@ -57,7 +57,7 @@ namespace ElasticSearch.Client.DSL
 		/// not (since they are not analyzed). Defaults to true.
 		/// </summary>
     //[JsonProperty(PropertyName = "lowercase_expended_terms")]
-    public bool Lowercase_Expended_Terms { get; private set; }
+    //public bool Lowercase_Expended_Terms { get; private set; }
 		/// <summary>
 		/// Get wheter position increments are enabled in result queries. Defaults to true.
 		/// </summary>
@@ -108,7 +108,7 @@ namespace ElasticSearch.Client.DSL
 			this.DefaultField = "_all";
 			this.DefaultOperator = Operator.OR;
 			this.AllowLeadingWildcard = true;
-			this.Lowercase_Expended_Terms = true;
+			//this.Lowercase_Expended_Terms = true;
 			this.Enable_Position_Increments = true;
 			this.FuzzyMinimumSimilarity = 0.5;
 			this.Boost = 1.0;
@@ -180,11 +180,11 @@ namespace ElasticSearch.Client.DSL
 		/// </summary>
 		/// <param name="lowercaseExpendedTerms">Defaults to true.</param>
 		/// <returns></returns>
-		public QueryString SetLowercaseExpendedTerms(bool lowercaseExpendedTerms)
-		{
-			this.Lowercase_Expended_Terms = lowercaseExpendedTerms;
-			return this;
-		}
+    //public QueryString SetLowercaseExpendedTerms(bool lowercaseExpendedTerms)
+    //{
+    //  //this.Lowercase_Expended_Terms = lowercaseExpendedTerms;
+    //  return this;
+    //}
 		/// <summary>
 		/// Set to true to enable position increments in result queries. 
 		/// </summary>

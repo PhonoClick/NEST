@@ -10,6 +10,7 @@ namespace ElasticSearch.Client
 {
 	internal class Connection : IConnection
 	{
+    private static readonly ILog Logger = LogManager.GetLogger(typeof(Connection));
 		public static ManualResetEvent allDone = new ManualResetEvent(false);
 		const int BUFFER_SIZE = 1024;
 
@@ -317,7 +318,8 @@ namespace ElasticSearch.Client
 		private HttpWebRequest CreateConnection(string path, string method)
 		{
 			var url = this._CreateUriString(path);
-			HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+			var myReq = (HttpWebRequest)WebRequest.Create(url);
+      Logger.DebugFormat("Search url: {0}",url);
 			myReq.Accept = "application/json";
 			myReq.ContentType = "application/json";
 			myReq.Timeout = 1000 * 60; // 1 minute timeout.

@@ -1,22 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ElasticSearch.Client.Thrift;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Fasterflect;
-using ElasticSearch;
-using Newtonsoft.Json.Converters;
-using ElasticSearch.Client.DSL;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.Reflection;
+using System.Linq;
+using Newtonsoft.Json;
+using ElasticSearch.Client.DSL;
 
 namespace ElasticSearch.Client
 {
-
 	public partial class ElasticClient
 	{
     public QueryResponse Query(string query, params string[] typeNames) {
@@ -66,15 +55,22 @@ namespace ElasticSearch.Client
 		}
 
     public QueryResponse Search(Search search, params string[] typeNames) {
+      var sw = Stopwatch.StartNew();       
       var rawQuery = this.SerializeCommand(search);
       Console.WriteLine(rawQuery);
-      return this.Query(rawQuery, typeNames);
+      Logger.DebugFormat("Search with typenames: {0}",rawQuery);
+      // time calculation
+      var query =  this.Query(rawQuery, typeNames);
+      sw.Stop();
+      Logger.DebugFormat("Search with typenames - Total time (ms): {0}", sw.ElapsedMilliseconds);
+      return query;
     }
 
 		public QueryResponse Search<T>(Search search)
 		{
 			var rawQuery = this.SerializeCommand(search);
       Console.WriteLine(rawQuery);
+      Logger.DebugFormat("Search: {0}", rawQuery);
 			return this.Query<T>(rawQuery);
 		}
 
@@ -84,27 +80,20 @@ namespace ElasticSearch.Client
 
 		public QueryResponse Search<T>(Query<T> query) where T : class
 		{
-			
 			var q = query.Queries.First();
 			var expression = q.MemberExpression;
 			this.PropertyNameResolver.Resolve(expression);
-
-			var o = this.SerializationSettings.ContractResolver;
-
-
-			var contract = this.SerializationSettings.ContractResolver.ResolveContract(expression.Type);
-
-
+			//var o = this.SerializationSettings.ContractResolver;
+			//var contract = this.SerializationSettings.ContractResolver.ResolveContract(expression.Type);
 			var search = new Search()
 			{
 
 			};
 
 			var rawQuery = this.SerializeCommand(search);
+      Logger.DebugFormat("Search with query: {0}", rawQuery);
 			return this.Query<T>(rawQuery);
 		}
-
-
 
 		public QueryResponse Search<T>(IQuery query) where T : class
 		{

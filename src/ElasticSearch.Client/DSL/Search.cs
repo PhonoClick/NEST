@@ -21,7 +21,7 @@ namespace ElasticSearch.Client.DSL
 		[DefaultValue(-1)]
 		public int Taking { get; private set; }
 		
-		public int Explain { get; set; }
+		//public int Explain { get; set; }
 		
 		public Search () {
 			Skipping = -1;

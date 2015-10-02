@@ -22,7 +22,6 @@ using ElasticSearch.Client;
 using ElasticSearch.NHibernate.Engine;
 using NHibernate;
 using NHibernate.Event;
-using NHibernate.Util;
 using log4net;
 
 namespace ElasticSearch.NHibernate.Impl {
