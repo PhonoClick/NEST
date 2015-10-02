@@ -12,7 +12,6 @@ namespace ElasticSearch.Client
     public CountResponse Count(Search search, params string[] typeNames)
     {
       var version = ConfigurationManager.AppSettings.Get("ElasticSearch.Version");
-
       if (string.IsNullOrEmpty(version) || version=="old")
       {
         var index = this.Settings.DefaultIndex;

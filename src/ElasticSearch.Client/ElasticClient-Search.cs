@@ -87,7 +87,6 @@ namespace ElasticSearch.Client
 			//var contract = this.SerializationSettings.ContractResolver.ResolveContract(expression.Type);
 			var search = new Search()
 			{
-
 			};
 
 			var rawQuery = this.SerializeCommand(search);
@@ -100,7 +99,6 @@ namespace ElasticSearch.Client
 			return this.Search<T>(new Search()
 			{
 				Query = new Query(query)
-
 			}.Skip(0).Take(10)
 			);
 		}

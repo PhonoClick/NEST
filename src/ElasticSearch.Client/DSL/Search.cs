@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
@@ -6,7 +5,11 @@ namespace ElasticSearch.Client.DSL
 {
 	public class Search
 	{
-		public Query Query { get; set; }
+    [JsonProperty(PropertyName = "_source", DefaultValueHandling = DefaultValueHandling.Ignore)]
+    [DefaultValue(true)]
+		public bool Source { get; set;}
+
+    public Query Query { get; set; }
 
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		[DefaultValue(null)]
@@ -26,6 +29,7 @@ namespace ElasticSearch.Client.DSL
 		public Search () {
 			Skipping = -1;
 			Taking = -1;
+      Source = true;
 		}
 		
 		public Search Skip(int skip)
@@ -38,7 +42,7 @@ namespace ElasticSearch.Client.DSL
 			this.Taking = take;
 			return this;
 		}
-		
+
 		public Search HighlightOnFields(params string[] fields) {
 			this.Highlight = new Highlight(fields);
 			return this;

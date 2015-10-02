@@ -22,12 +22,10 @@ using ElasticSearch.Client;
 using ElasticSearch.Client.Thrift;
 using ElasticSearch.NHibernate.Engine;
 using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Engine;
 using NHibernate.Engine.Query;
 using NHibernate.Impl;
 using ElasticSearch.Client.DSL;
-using NHibernate.Proxy;
 using NHibernate.Util;
 using IQuery = NHibernate.IQuery;
 
@@ -39,6 +37,7 @@ namespace ElasticSearch.NHibernate.Impl {
     private int maxResultNumber = -1;
     private int firstResultOffset = -1;
     private string[] highlightFields;
+    private bool source;
 
     private SearchContext SearchContext {
       get { return searchContext ?? (searchContext = SearchContext.GetInstance(Session)); }
@@ -117,6 +116,7 @@ namespace ElasticSearch.NHibernate.Impl {
 
     public QueryResponse RawResult<T>()
     {
+      source =false;
       var result = Execute<T>();
       if (!result.IsValid)
         throw new HibernateException("Failed to fetch any results from Elastic Search server.",
@@ -239,6 +239,10 @@ namespace ElasticSearch.NHibernate.Impl {
       }
       if (highlightFields != null) {
         search = search.HighlightOnFields(highlightFields);
+      }
+      if (source == false)
+      {
+        search.Source = source;
       }
       
       var builder = SearchContext.GetBuilderByType(typeof(T));

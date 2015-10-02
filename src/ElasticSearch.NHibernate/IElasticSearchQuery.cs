@@ -26,7 +26,6 @@ namespace ElasticSearch.NHibernate {
         new IElasticSearchQuery SetFirstResult(int firstResult);
 
         IElasticSearchQuery SetHighlightFields(params string[] fields);
-
         IElasticSearchQuery SetHighlightFields<T>();
 
         IQueryable<SearchResult<T>> ToQueryable<T>();
