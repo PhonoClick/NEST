@@ -56,8 +56,8 @@ namespace ElasticSearch.Client.DSL
 		/// Whether terms of wildcard, prefix, fuzzy, and range queries are to be automatically lower-cased or
 		/// not (since they are not analyzed). Defaults to true.
 		/// </summary>
-    //[JsonProperty(PropertyName = "lowercase_expended_terms")]
-    //public bool Lowercase_Expended_Terms { get; private set; }
+    [JsonProperty(PropertyName = "lowercase_expanded_terms")]
+    public bool Lowercase_Expanded_Terms { get; private set; }
 		/// <summary>
 		/// Get wheter position increments are enabled in result queries. Defaults to true.
 		/// </summary>
@@ -108,7 +108,7 @@ namespace ElasticSearch.Client.DSL
 			this.DefaultField = "_all";
 			this.DefaultOperator = Operator.OR;
 			this.AllowLeadingWildcard = true;
-			//this.Lowercase_Expended_Terms = true;
+			this.Lowercase_Expanded_Terms = false;
 			this.Enable_Position_Increments = true;
 			this.FuzzyMinimumSimilarity = 0.5;
 			this.Boost = 1.0;
@@ -178,13 +178,13 @@ namespace ElasticSearch.Client.DSL
 		/// Whether terms of wildcard, prefix, fuzzy, and range queries are to be automatically lower-cased or
 		/// not (since they are not analyzed).
 		/// </summary>
-		/// <param name="lowercaseExpendedTerms">Defaults to true.</param>
+		/// <param name="lowercaseExpandedTerms">Defaults to true.</param>
 		/// <returns></returns>
-    //public QueryString SetLowercaseExpendedTerms(bool lowercaseExpendedTerms)
-    //{
-    //  //this.Lowercase_Expended_Terms = lowercaseExpendedTerms;
-    //  return this;
-    //}
+    public QueryString SetLowercaseExpandedTerms(bool lowercaseExpandedTerms)
+    {
+      this.Lowercase_Expanded_Terms = lowercaseExpandedTerms;
+      return this;
+    }
 		/// <summary>
 		/// Set to true to enable position increments in result queries. 
 		/// </summary>
