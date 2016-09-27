@@ -22,8 +22,7 @@ namespace ElasticSearch.Client
 			this._ConnectionSettings = settings;
 			this._ResourceLock = new Semaphore(settings.MaximumAsyncConnections, settings.MaximumAsyncConnections);
 		}
-
-		
+	
 		public ConnectionStatus GetSync(string path)
 		{
 			var connection = this.CreateConnection(path, "GET");
@@ -96,50 +95,53 @@ namespace ElasticSearch.Client
 			}
 		}
 
-        public ConnectionStatus DeleteSync(string path)
-        {
-            var connection = this.CreateConnection(path, "DELETE");
-            connection.Timeout = this._ConnectionSettings.TimeOut;
-            WebResponse response = null;
-            try
-            {
-                response = connection.GetResponse();
-                var result = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                response.Close();
-                return new ConnectionStatus(result);
-            }
-            catch (WebException e)
-            {
-                ConnectionError error;
-                if (e.Status == WebExceptionStatus.Timeout)
-                {
-                    error = new ConnectionError(e) { HttpStatusCode = HttpStatusCode.InternalServerError };
-                }
-                else
-                {
-                    error = new ConnectionError(e);
-                }
-                return new ConnectionStatus(error);
-            }
-            catch (Exception e) { return new ConnectionStatus(new ConnectionError(e)); }
-            finally
-            {
-                if (response != null)
-                    response.Close();
-            }
-        }
+	  public ConnectionStatus DeleteSync(string path)
+	  {
+	    var connection = this.CreateConnection(path, "DELETE");
+	    connection.Timeout = this._ConnectionSettings.TimeOut;
+	    WebResponse response = null;
+	    try
+	    {
+	      response = connection.GetResponse();
+	      var result = new StreamReader(response.GetResponseStream()).ReadToEnd();
+	      response.Close();
+	      return new ConnectionStatus(result);
+	    }
+	    catch (WebException e)
+	    {
+	      ConnectionError error;
+	      if (e.Status == WebExceptionStatus.Timeout)
+	      {
+	        error = new ConnectionError(e) {HttpStatusCode = HttpStatusCode.InternalServerError};
+	      }
+	      else
+	      {
+	        error = new ConnectionError(e);
+	      }
+	      return new ConnectionStatus(error);
+	    }
+	    catch (Exception e)
+	    {
+	      return new ConnectionStatus(new ConnectionError(e));
+	    }
+	    finally
+	    {
+	      if (response != null)
+	        response.Close();
+	    }
+	  }
 
-        public void Delete(string path, Action<ConnectionStatus> callback)
-        {
-            ConnectionState state = new ConnectionState
-                                        {
-                                            Callback = callback,
-                                            Connection = this.CreateConnection(path, "DELETE")
-                                        };
-            this.BeginGetResponse(state);
-        }
-		
-		public void Get(string path, Action<ConnectionStatus> callback)
+	  public void Delete(string path, Action<ConnectionStatus> callback)
+	  {
+	    ConnectionState state = new ConnectionState
+	    {
+	      Callback = callback,
+	      Connection = this.CreateConnection(path, "DELETE")
+	    };
+	    this.BeginGetResponse(state);
+	  }
+
+	  public void Get(string path, Action<ConnectionStatus> callback)
 		{
 			ConnectionState state = new ConnectionState()
 			{
@@ -165,9 +167,46 @@ namespace ElasticSearch.Client
 			postThread.Start();
 			
 		}
-		public void Put(string path, string data, Action<ConnectionStatus> callback)
+    public ConnectionStatus DoSync(string method,string path, string data)
 		{
-			this._PutOrPost("PUT", path, data, callback);
+      var connection = this.CreateConnection(path, method);
+      connection.Timeout = this._ConnectionSettings.TimeOut;
+      Stream postStream = null;
+      WebResponse response = null;
+      try
+      {
+        byte[] buffer = Encoding.UTF8.GetBytes(data);
+        connection.ContentLength = buffer.Length;
+        postStream = connection.GetRequestStream();
+        postStream.Write(buffer, 0, buffer.Length);
+        postStream.Close();
+        response = connection.GetResponse();
+        var result = new StreamReader(response.GetResponseStream()).ReadToEnd();
+        response.Close();
+        return new ConnectionStatus(result);
+      }
+      catch (WebException e)
+      {
+        ConnectionError error;
+        if (e.Status == WebExceptionStatus.Timeout)
+        {
+          error = new ConnectionError(e) { HttpStatusCode = HttpStatusCode.InternalServerError };
+        }
+        else
+        {
+          error = new ConnectionError(e);
+        }
+        return new ConnectionStatus(error);
+      }
+      catch (Exception e) { return new ConnectionStatus(new ConnectionError(e)); }
+      finally
+      {
+        if (postStream != null)
+          postStream.Close();
+        if (response != null)
+          response.Close();
+      }
+
 		}
 
 		private void _PutOrPost(string method, string path,string data, Action<ConnectionStatus> callback)
@@ -228,7 +267,6 @@ namespace ElasticSearch.Client
 			}
 		}
 
-
 		private static void ThreadTimeoutCallback(object state, bool timedOut)
 		{
 			if (timedOut)
@@ -242,7 +280,6 @@ namespace ElasticSearch.Client
 				}
 			}
 		}
-
 
 		private void GetResponseHandle(IAsyncResult result)
 		{
@@ -314,12 +351,11 @@ namespace ElasticSearch.Client
 
 		}
 
-
 		private HttpWebRequest CreateConnection(string path, string method)
 		{
 			var url = this._CreateUriString(path);
 			var myReq = (HttpWebRequest)WebRequest.Create(url);
-      Logger.DebugFormat("Search url: {0}",url);
+      Logger.DebugFormat("elasticsearch url: {0}",url);
 			myReq.Accept = "application/json";
 			myReq.ContentType = "application/json";
 			myReq.Timeout = 1000 * 60; // 1 minute timeout.

@@ -7,7 +7,6 @@ namespace ElasticSearch.Client
 {
 	public partial class ElasticClient
 	{
-
 		public IndicesResponse ClearCache()
 		{
 			return this.ClearCache(null, ClearCacheOptions.All);
@@ -56,6 +55,22 @@ namespace ElasticSearch.Client
 			response.ConnectionStatus = status;
 			return response;
 		}
+
+    public IndicesResponse CreateIndex(string indexName)
+	  {
+      var path = this.createPath(indexName);
+
+      var status = this.Connection.DoSync("PUT",path,"{}");
+      var response = new IndicesResponse();
+      try
+      {
+        response = JsonConvert.DeserializeObject<IndicesResponse>(status.Result);
+      }
+      catch { }
+
+      response.ConnectionStatus = status;
+      return response;
+	  }
 
     public IndicesResponse DeleteIndex(string indexName)
     {

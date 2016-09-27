@@ -119,7 +119,50 @@ namespace ElasticSearch.Client.Thrift
             return new ConnectionStatus(DecodeStr(result.Body));
 	    }
 
-	    #endregion
+	  public void Put(string path, string data, Action<ConnectionStatus> callback)
+	  {
+      var restRequest = new RestRequest();
+      restRequest.Method = Method.PUT;
+      restRequest.Uri = path;
+
+      restRequest.Headers = new Dictionary<string, string>();
+      restRequest.Headers.Add("Content-Type", "application/json");
+      GetClient().execute(restRequest);
+	  }
+
+    public ConnectionStatus DoSync(string method,string path, string data)
+    {
+      var restRequest = new RestRequest();
+      switch (method)
+      {
+        case "PUT":
+          restRequest.Method = Method.PUT;
+          break;
+        case "DELETE":
+          restRequest.Method = Method.DELETE;
+          break;
+        case "POST":
+          restRequest.Method = Method.POST;
+          break;
+        case "GET":
+          restRequest.Method = Method.GET;
+          break;
+      }
+
+      restRequest.Uri = path;
+
+      if (!string.IsNullOrEmpty(data))
+      {
+        restRequest.Body = Encoding.UTF8.GetBytes(data);
+      }
+      restRequest.Headers = new Dictionary<string, string>();
+      restRequest.Headers.Add("Content-Type", "application/json");
+      RestResponse result = GetClient().execute(restRequest);
+      return new ConnectionStatus(DecodeStr(result.Body));
+    }
+
+
+	  #endregion
 
 		#region IDisposable Members
 

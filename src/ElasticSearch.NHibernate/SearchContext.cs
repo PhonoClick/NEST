@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ElasticSearch.Client;
 using ElasticSearch.NHibernate.Attributes;
 using ElasticSearch.NHibernate.Engine;
 using ElasticSearch.NHibernate.Impl;
-using NHibernate;
 using NHibernate.Engine;
 using NHibernate.Proxy;
 

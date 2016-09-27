@@ -75,8 +75,26 @@ namespace ElasticSearch.NHibernate {
         return result != null && result.Success;
       }
 
+      public bool CreateAlias(string indexName,string alias)
+      {
+        return SearchContext.Client.PutAlias(indexName,alias);
+      }
+
+      public bool CreateIndex(string indexName)
+      {
+        var result = SearchContext.Client.CreateIndex(indexName);
+        return result != null && result.Success;
+      }
+
+      public bool DeleteAllDocs(string indexName)
+      {
+        return SearchContext.Client.DeleteAllDocuments(indexName);
+      }
+
       public void Refresh() {
         SearchContext.Client.Refresh();
       }
+
+
     }
 }

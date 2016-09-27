@@ -20,13 +20,17 @@ using ElasticSearch.Client.DSL;
 using NHibernate;
 
 namespace ElasticSearch.NHibernate {
-    public interface IElasticSearchSession: ISession {
-        QueryResponse RawQuery(string query, params string[] typeNames);
-        IElasticSearchQuery CreateFullTextQuery(Query search);
-        void Index(object o);
-        bool PurgeAll(Type type);
-        bool PurgeAll();
-        bool PurgeAll(string indexName);
-        void Refresh();
-    }
+  public interface IElasticSearchSession : ISession
+  {
+    QueryResponse RawQuery(string query, params string[] typeNames);
+    IElasticSearchQuery CreateFullTextQuery(Query search);
+    void Index(object o);
+    bool PurgeAll(Type type);
+    bool PurgeAll();
+    bool PurgeAll(string indexName);
+    void Refresh();
+    bool CreateAlias(string indexName, string alias);
+    bool CreateIndex(string indexName);
+    bool DeleteAllDocs(string indexName);
+  }
 }

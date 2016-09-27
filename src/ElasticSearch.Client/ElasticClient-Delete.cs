@@ -1,18 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ElasticSearch.Client.Thrift;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Fasterflect;
-using ElasticSearch;
-using Newtonsoft.Json.Converters;
-using ElasticSearch.Client.DSL;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.Reflection;
+﻿using Newtonsoft.Json.Linq;
 
 namespace ElasticSearch.Client
 {
@@ -21,9 +7,18 @@ namespace ElasticSearch.Client
       return Delete(CreatePathFor(@object), InferTypeName(@object));
     }
 
+    public bool DeleteAllDocuments(string indexName)
+    {
+      indexName.ThrowIfNullOrEmpty("Cannot infer default index for current connection.");
+      var result = this.Connection.DoSync("DELETE", indexName + "/_query", "{\"query\":{\"match_all\":{}}}");
+      Logger.DebugFormat("alias docs deleted for: {0} result is {1}", indexName, result.Success);
+      return result.Success;
+    }
+
     public bool Delete<T>(T @object) where T : class {
       return Delete(CreatePathFor(@object));
     }
+
     public bool Delete<T>(int id) where T : class {
       return Delete<T>(id.ToString());
     }
@@ -38,6 +33,7 @@ namespace ElasticSearch.Client
 
       return this.Delete(id, this.createPath(index, type));
     }
+
     public bool Delete(string index, string type, object id) {
       return this.Delete(createPath(index, type, id));
     }

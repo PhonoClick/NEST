@@ -60,7 +60,8 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -83,6 +84,7 @@
     <Compile Include="ConnectionSettings.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="ConnectionStatus.cs" />
+    <Compile Include="ElasticClient-Alias.cs" />
     <Compile Include="ElasticClient-Count.cs" />
     <Compile Include="DSL\Highlight.cs" />
     <Compile Include="ElasticClient-Delete.cs" />
