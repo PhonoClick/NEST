@@ -96,7 +96,23 @@ namespace ElasticSearch.Client.Thrift
 			return new ConnectionStatus(DecodeStr(result.Body));
 		}
 
-	    public void Delete(string path, Action<ConnectionStatus> callback)
+    public ConnectionStatus DeleteMultipleSync(string path, string data)
+    {
+      var restRequest = new RestRequest();
+      restRequest.Method = Method.DELETE;
+      restRequest.Uri = path;
+
+      if (!string.IsNullOrEmpty(data))
+      {
+        restRequest.Body = Encoding.UTF8.GetBytes(data);
+      }
+      restRequest.Headers = new Dictionary<string, string>();
+      restRequest.Headers.Add("Content-Type", "application/json");
+      RestResponse result = GetClient().execute(restRequest);
+      return new ConnectionStatus(DecodeStr(result.Body));
+    }
+
+    public void Delete(string path, Action<ConnectionStatus> callback)
 	    {
             var restRequest = new RestRequest();
             restRequest.Method = Method.DELETE;
@@ -236,5 +252,5 @@ namespace ElasticSearch.Client.Thrift
 			}
 			return string.Empty;
 		}
-	}
+  }
 }

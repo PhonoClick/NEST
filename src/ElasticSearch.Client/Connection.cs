@@ -95,7 +95,48 @@ namespace ElasticSearch.Client
 			}
 		}
 
-	  public ConnectionStatus DeleteSync(string path)
+    public ConnectionStatus DeleteMultipleSync(string path, string data)
+    {
+      var connection = this.CreateConnection(path + "/_query", "DELETE");
+      connection.Timeout = this._ConnectionSettings.TimeOut;
+      Stream postStream = null;
+      WebResponse response = null;
+      try
+      {
+        byte[] buffer = Encoding.UTF8.GetBytes(data);
+        connection.ContentLength = buffer.Length;
+        postStream = connection.GetRequestStream();
+        postStream.Write(buffer, 0, buffer.Length);
+        postStream.Close();
+        response = connection.GetResponse();
+        var result = new StreamReader(response.GetResponseStream()).ReadToEnd();
+        response.Close();
+        return new ConnectionStatus(result);
+      }
+      catch (WebException e)
+      {
+        ConnectionError error;
+        if (e.Status == WebExceptionStatus.Timeout)
+        {
+          error = new ConnectionError(e) { HttpStatusCode = HttpStatusCode.InternalServerError };
+        }
+        else
+        {
+          error = new ConnectionError(e);
+        }
+        return new ConnectionStatus(error);
+      }
+      catch (Exception e) { return new ConnectionStatus(new ConnectionError(e)); }
+      finally
+      {
+        if (postStream != null)
+          postStream.Close();
+        if (response != null)
+          response.Close();
+      }
+    }
+
+    public ConnectionStatus DeleteSync(string path)
 	  {
 	    var connection = this.CreateConnection(path, "DELETE");
 	    connection.Timeout = this._ConnectionSettings.TimeOut;

@@ -32,5 +32,6 @@ namespace ElasticSearch.NHibernate {
     bool CreateAlias(string indexName, string alias);
     bool CreateIndex(string indexName);
     bool DeleteAllDocs(string indexName);
+    bool DeleteMultiple(string indexName, string data);
   }
 }

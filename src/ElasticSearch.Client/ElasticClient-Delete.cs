@@ -38,6 +38,23 @@ namespace ElasticSearch.Client
       return this.Delete(createPath(index, type, id));
     }
 
+    public bool DeleteMultiple(string index, string data)
+    {
+      var response = this.Connection.DeleteMultipleSync(index, data);
+      if (response.Error != null)
+      {
+        return false;
+      }
+      var o = JObject.Parse(response.Result);
+      var ok = o["ok"];
+      if (ok != null)
+      {
+        return (bool)ok;
+      }
+
+      return false;
+    }
+
     private bool Delete(string path) {
       var response = this.Connection.DeleteSync(path);
       if (response.Error != null) {

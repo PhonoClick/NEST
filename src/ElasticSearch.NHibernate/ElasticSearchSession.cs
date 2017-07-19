@@ -91,6 +91,11 @@ namespace ElasticSearch.NHibernate {
         return SearchContext.Client.DeleteAllDocuments(indexName);
       }
 
+      public bool DeleteMultiple(string indexName, string data)
+      {
+        return SearchContext.Client.DeleteMultiple(indexName, data);
+      }
+
       public void Refresh() {
         SearchContext.Client.Refresh();
       }
