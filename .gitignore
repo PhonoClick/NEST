@@ -76,3 +76,4 @@
 /src/ElasticSearch.Tests/bin
 /src/HackerNews.Indexer/bin
 /src/Nest.TestData/bin
+/src/.vs/ElasticSearch.NET/v16/Server/sqlite3
