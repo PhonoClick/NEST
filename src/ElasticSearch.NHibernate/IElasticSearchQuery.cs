@@ -32,7 +32,7 @@ namespace ElasticSearch.NHibernate {
 
         int Scalar<T>() where T: class;
 
-        QueryResponse RawResult<T>();
+        QueryResponse RawResult<T>(bool source = false);
     }
 
   public class SearchResult<T> {

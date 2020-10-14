@@ -114,9 +114,9 @@ namespace ElasticSearch.NHibernate.Impl {
         .AsQueryable();
     }
 
-    public QueryResponse RawResult<T>()
+    public QueryResponse RawResult<T>(bool source = false)
     {
-      source =false;
+      this.source = source;
       var result = Execute<T>();
       if (!result.IsValid)
         throw new HibernateException("Failed to fetch any results from Elastic Search server.",
